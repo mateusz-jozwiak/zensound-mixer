@@ -24,54 +24,56 @@ interface Sound {
   audioUrl: string;
 }
 
+// Audio URLs - Using reliable CDN sources
+// These are from free-to-use audio libraries
 const sounds: Sound[] = [
   {
     id: "rain",
     name: "Deszcz",
     icon: CloudRain,
-    audioUrl: "https://cdn.pixabay.com/audio/2022/05/16/audio_1808fbf07a.mp3", // Rain sound
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/212/212-preview.mp3",
   },
   {
     id: "storm",
     name: "Burza",
     icon: CloudLightning,
-    audioUrl: "https://cdn.pixabay.com/audio/2022/10/30/audio_f6c7a7cf6c.mp3", // Thunder storm
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/1166/1166-preview.mp3",
   },
   {
     id: "forest",
     name: "Las",
     icon: TreePine,
-    audioUrl: "https://cdn.pixabay.com/audio/2022/03/10/audio_4dedf5bf94.mp3", // Forest ambience
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/1210/1210-preview.mp3",
   },
   {
     id: "fire",
     name: "Kominek",
     icon: Flame,
-    audioUrl: "https://cdn.pixabay.com/audio/2021/10/07/audio_d47906aec8.mp3", // Fireplace
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2577/2577-preview.mp3",
   },
   {
     id: "waves",
     name: "Fale",
     icon: Waves,
-    audioUrl: "https://cdn.pixabay.com/audio/2022/06/07/audio_b9bd4170e4.mp3", // Ocean waves
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/1189/1189-preview.mp3",
   },
   {
     id: "wind",
     name: "Wiatr",
     icon: Wind,
-    audioUrl: "https://cdn.pixabay.com/audio/2022/03/24/audio_77577b9380.mp3", // Wind sound
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2461/2461-preview.mp3",
   },
   {
     id: "cafe",
     name: "Kawiarnia",
     icon: Coffee,
-    audioUrl: "https://cdn.pixabay.com/audio/2022/10/18/audio_69a61cd6d6.mp3", // Cafe ambience
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/371/371-preview.mp3",
   },
   {
     id: "birds",
     name: "Ptaki",
     icon: Bird,
-    audioUrl: "https://cdn.pixabay.com/audio/2022/02/23/audio_ea70ad08e2.mp3", // Birds chirping
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2432/2432-preview.mp3",
   },
 ];
 
@@ -101,9 +103,17 @@ const AmbientSoundMixer = () => {
   useEffect(() => {
     sounds.forEach((sound) => {
       if (!audioRefs.current[sound.id]) {
-        const audio = new Audio(sound.audioUrl);
+        const audio = new Audio();
+        audio.crossOrigin = "anonymous";
         audio.loop = true;
         audio.preload = "auto";
+        audio.src = sound.audioUrl;
+        
+        // Better error handling
+        audio.onerror = () => {
+          console.warn(`Failed to load audio: ${sound.name}`);
+        };
+        
         audioRefs.current[sound.id] = audio;
       }
     });
