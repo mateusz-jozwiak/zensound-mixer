@@ -1,10 +1,38 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Music, Upload, Youtube, Play, Pause, X, Volume2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
 interface BackgroundMusicProps {
   isMuted: boolean;
+}
+
+declare global {
+  interface Window {
+    YT: {
+      Player: new (
+        elementId: string,
+        config: {
+          videoId: string;
+          playerVars?: Record<string, number | string>;
+          events?: {
+            onReady?: (event: { target: YTPlayer }) => void;
+            onStateChange?: (event: { data: number }) => void;
+          };
+        }
+      ) => YTPlayer;
+    };
+    onYouTubeIframeAPIReady: () => void;
+  }
+}
+
+interface YTPlayer {
+  playVideo: () => void;
+  pauseVideo: () => void;
+  setVolume: (volume: number) => void;
+  getVolume: () => number;
+  destroy: () => void;
+  getPlayerState: () => number;
 }
 
 const extractYouTubeId = (url: string): string | null => {
@@ -29,9 +57,94 @@ const BackgroundMusic = ({ isMuted }: BackgroundMusicProps) => {
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [youtubeId, setYoutubeId] = useState<string | null>(null);
   const [youtubeVolume, setYoutubeVolume] = useState(50);
+  const [youtubePlaying, setYoutubePlaying] = useState(false);
+  const [youtubeReady, setYoutubeReady] = useState(false);
   
   const mp3Ref = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const ytPlayerRef = useRef<YTPlayer | null>(null);
+  const ytContainerRef = useRef<HTMLDivElement>(null);
+
+  // Load YouTube IFrame API
+  useEffect(() => {
+    if (window.YT) return;
+    
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName("script")[0];
+    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+  }, []);
+
+  // Initialize YouTube player when ID changes
+  useEffect(() => {
+    if (!youtubeId) {
+      if (ytPlayerRef.current) {
+        ytPlayerRef.current.destroy();
+        ytPlayerRef.current = null;
+      }
+      setYoutubeReady(false);
+      setYoutubePlaying(false);
+      return;
+    }
+
+    const initPlayer = () => {
+      if (!window.YT || !window.YT.Player) {
+        setTimeout(initPlayer, 100);
+        return;
+      }
+
+      if (ytPlayerRef.current) {
+        ytPlayerRef.current.destroy();
+      }
+
+      ytPlayerRef.current = new window.YT.Player("yt-player", {
+        videoId: youtubeId,
+        playerVars: {
+          autoplay: 0,
+          loop: 1,
+          playlist: youtubeId,
+          controls: 1,
+          modestbranding: 1,
+        },
+        events: {
+          onReady: (event) => {
+            setYoutubeReady(true);
+            event.target.setVolume(youtubeVolume);
+          },
+          onStateChange: (event) => {
+            // 1 = playing, 2 = paused
+            setYoutubePlaying(event.data === 1);
+          },
+        },
+      });
+    };
+
+    initPlayer();
+
+    return () => {
+      if (ytPlayerRef.current) {
+        ytPlayerRef.current.destroy();
+        ytPlayerRef.current = null;
+      }
+    };
+  }, [youtubeId]);
+
+  // Handle YouTube volume changes
+  useEffect(() => {
+    if (ytPlayerRef.current && youtubeReady) {
+      const effectiveVolume = isMuted ? 0 : youtubeVolume;
+      ytPlayerRef.current.setVolume(effectiveVolume);
+    }
+  }, [youtubeVolume, isMuted, youtubeReady]);
+
+  // Handle YouTube play/pause with mute
+  useEffect(() => {
+    if (ytPlayerRef.current && youtubeReady && isMuted && youtubePlaying) {
+      ytPlayerRef.current.setVolume(0);
+    } else if (ytPlayerRef.current && youtubeReady && !isMuted) {
+      ytPlayerRef.current.setVolume(youtubeVolume);
+    }
+  }, [isMuted, youtubePlaying, youtubeReady, youtubeVolume]);
 
   // Handle MP3 file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,6 +198,17 @@ const BackgroundMusic = ({ isMuted }: BackgroundMusicProps) => {
       setYoutubeId(id);
     }
   };
+
+  // Toggle YouTube play/pause
+  const toggleYoutube = useCallback(() => {
+    if (!ytPlayerRef.current || !youtubeReady) return;
+    
+    if (youtubePlaying) {
+      ytPlayerRef.current.pauseVideo();
+    } else {
+      ytPlayerRef.current.playVideo();
+    }
+  }, [youtubePlaying, youtubeReady]);
 
   // Remove MP3
   const removeMp3 = () => {
@@ -210,35 +334,37 @@ const BackgroundMusic = ({ isMuted }: BackgroundMusicProps) => {
           ) : (
             <div className="space-y-3">
               <div className="relative aspect-video rounded-xl overflow-hidden bg-secondary">
-                <iframe
-                  src={`https://www.youtube.com/embed/${youtubeId}?autoplay=0&loop=1&playlist=${youtubeId}`}
-                  className="absolute inset-0 w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+                <div id="yt-player" ref={ytContainerRef} className="absolute inset-0 w-full h-full" />
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 flex-1">
-                  <Volume2 className="w-4 h-4 text-muted-foreground" />
-                  <Slider
-                    value={[youtubeVolume]}
-                    onValueChange={(v) => setYoutubeVolume(v[0])}
-                    max={100}
-                    step={1}
-                    className="flex-1 max-w-[120px]"
-                  />
-                  <span className="text-xs text-muted-foreground">{youtubeVolume}%</span>
-                </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={toggleYoutube}
+                  disabled={!youtubeReady}
+                  className={cn(
+                    "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                    youtubePlaying ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/80",
+                    !youtubeReady && "opacity-50 cursor-not-allowed"
+                  )}
+                >
+                  {youtubePlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                </button>
+                <Volume2 className="w-4 h-4 text-muted-foreground" />
+                <Slider
+                  value={[youtubeVolume]}
+                  onValueChange={(v) => setYoutubeVolume(v[0])}
+                  max={100}
+                  step={1}
+                  className="flex-1"
+                  disabled={!youtubeReady}
+                />
+                <span className="text-xs text-muted-foreground w-8">{youtubeVolume}%</span>
                 <button
                   onClick={removeYoutube}
-                  className="px-3 py-1.5 rounded-lg bg-destructive/20 text-destructive text-sm hover:bg-destructive/30 transition-colors"
+                  className="w-8 h-8 rounded-lg bg-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/30 transition-colors"
                 >
-                  Usuń
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                * Głośność YouTube kontrolujesz w odtwarzaczu
-              </p>
             </div>
           )}
         </div>
