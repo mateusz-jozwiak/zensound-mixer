@@ -203,16 +203,17 @@ const AmbientSoundMixer = () => {
 
   // Handle play/pause and volume changes
   useEffect(() => {
-    Object.entries(soundStates).forEach(([id, state]) => {
-      const audio = audioRefs.current[id];
-      if (!audio) return;
+    sounds.forEach((sound) => {
+      const state = soundStates[sound.id];
+      const audio = audioRefs.current[sound.id];
+      if (!audio || !state) return;
 
       const effectiveVolume = isMuted ? 0 : state.volume / 100;
       audio.volume = effectiveVolume;
 
       if (state.isActive && !isMuted) {
         audio.play().catch(console.error);
-      } else if (!state.isActive || isMuted) {
+      } else {
         audio.pause();
       }
     });
@@ -233,12 +234,15 @@ const AmbientSoundMixer = () => {
           clearInterval(interval);
           // Stop all sounds when timer ends
           setSoundStates((current) =>
-            Object.keys(current).reduce(
-              (acc, key) => ({
+            sounds.reduce(
+              (acc, sound) => ({
                 ...acc,
-                [key]: { ...current[key], isActive: false },
+                [sound.id]: { 
+                  isActive: false, 
+                  volume: current[sound.id]?.volume ?? 50 
+                },
               }),
-              {}
+              {} as Record<string, SoundState>
             )
           );
           setSelectedTimer(null);
@@ -254,14 +258,20 @@ const AmbientSoundMixer = () => {
   const toggleSound = useCallback((id: string) => {
     setSoundStates((prev) => ({
       ...prev,
-      [id]: { ...prev[id], isActive: !prev[id].isActive },
+      [id]: { 
+        isActive: !(prev[id]?.isActive ?? false), 
+        volume: prev[id]?.volume ?? 50 
+      },
     }));
   }, []);
 
   const setVolume = useCallback((id: string, volume: number) => {
     setSoundStates((prev) => ({
       ...prev,
-      [id]: { ...prev[id], volume },
+      [id]: { 
+        isActive: prev[id]?.isActive ?? false, 
+        volume 
+      },
     }));
   }, []);
 
@@ -270,7 +280,7 @@ const AmbientSoundMixer = () => {
   }, []);
 
   const activeSoundsCount = Object.values(soundStates).filter(
-    (s) => s.isActive
+    (s) => s?.isActive
   ).length;
 
   const natureSounds = sounds.filter((s) => s.category === "nature");
