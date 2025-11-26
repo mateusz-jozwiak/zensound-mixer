@@ -168,6 +168,10 @@ const AmbientSoundMixer = () => {
         {}
       )
   );
+  // allow users to paste custom URLs per sound; initialize from built-in audioUrl
+  const [customUrls, setCustomUrls] = useState<Record<string, string>>(() =>
+    sounds.reduce((acc, sound) => ({ ...acc, [sound.id]: sound.audioUrl }), {})
+  );
   const [isMuted, setIsMuted] = useState(false);
   const [selectedTimer, setSelectedTimer] = useState<number | null>(null);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
@@ -182,7 +186,7 @@ const AmbientSoundMixer = () => {
         audio.crossOrigin = "anonymous";
         audio.loop = true;
         audio.preload = "auto";
-        audio.src = sound.audioUrl;
+        audio.src = customUrls[sound.id] || sound.audioUrl;
         
         // Better error handling
         audio.onerror = () => {
@@ -200,6 +204,20 @@ const AmbientSoundMixer = () => {
       });
     };
   }, []);
+
+  // update audio src when user provides a new URL
+  const handleUrlChange = useCallback((id: string, url: string) => {
+    setCustomUrls((prev) => ({ ...prev, [id]: url }));
+    const audio = audioRefs.current[id];
+    if (audio) {
+      audio.src = url;
+      // try to reload/play if active
+      audio.load();
+      if (soundStates[id]?.isActive && !isMuted) {
+        audio.play().catch(console.error);
+      }
+    }
+  }, [soundStates, isMuted]);
 
   // Handle play/pause and volume changes
   useEffect(() => {
@@ -307,6 +325,8 @@ const AmbientSoundMixer = () => {
               volume={soundStates[sound.id]?.volume || 50}
               onToggle={() => toggleSound(sound.id)}
               onVolumeChange={(volume) => setVolume(sound.id, volume)}
+              url={customUrls[sound.id]}
+              onUrlChange={(url) => handleUrlChange(sound.id, url)}
             />
           </div>
         ))}

@@ -9,6 +9,8 @@ interface SoundTileProps {
   volume: number;
   onToggle: () => void;
   onVolumeChange: (value: number) => void;
+  url?: string;
+  onUrlChange?: (url: string) => void;
 }
 
 const SoundTile = ({
@@ -18,7 +20,10 @@ const SoundTile = ({
   volume,
   onToggle,
   onVolumeChange,
+    url,
+    onUrlChange,
 }: SoundTileProps) => {
+  const [inputUrl, setInputUrl] = useState(url ?? "");
   return (
     <div
       className={cn(
@@ -75,6 +80,24 @@ const SoundTile = ({
             {volume}%
           </span>
           <span className="text-xs text-muted-foreground">100</span>
+        </div>
+
+        <div className="mt-3">
+          <label className="text-xs text-muted-foreground">Link do dźwięku</label>
+          <div className="flex gap-2 mt-1">
+            <input
+              value={inputUrl}
+              onChange={(e) => setInputUrl(e.target.value)}
+              placeholder="Wklej URL pliku audio"
+              className="flex-1 rounded-md border px-2 py-1 text-sm"
+            />
+            <button
+              onClick={() => onUrlChange?.(inputUrl)}
+              className="rounded-md bg-primary px-3 py-1 text-sm text-white"
+            >
+              Zapisz
+            </button>
+          </div>
         </div>
       </div>
     </div>
