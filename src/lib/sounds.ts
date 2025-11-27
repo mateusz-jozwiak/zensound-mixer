@@ -23,7 +23,7 @@ export interface Sound {
   name: string;
   icon: LucideIcon;
   audioUrl: string;
-  category: "nature" | "urban" | "special";
+  category: "nature" | "urban" | "special" | "chooj";
 }
 
 /**
