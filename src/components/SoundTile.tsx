@@ -84,19 +84,23 @@ const SoundTile = ({
         </div>
 
         <div className="mt-3">
-          <label className="text-xs text-muted-foreground">Link do dźwięku</label>
-          <div className="flex gap-2 mt-1">
+          <label className="text-xs text-muted-foreground block mb-1">Link do dźwięku</label>
+          <div className="flex gap-2">
             <input
               value={inputUrl}
               onChange={(e) => setInputUrl(e.target.value)}
-              placeholder="Wklej URL pliku audio"
-              className="flex-1 rounded-md border px-2 py-1 text-sm"
+              onClick={(e) => e.stopPropagation()}
+              placeholder="Wklej URL"
+              className="flex-1 min-w-0 rounded-lg border border-border bg-secondary/50 px-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
             />
             <button
-              onClick={() => onUrlChange?.(inputUrl)}
-              className="rounded-md bg-primary px-3 py-1 text-sm text-white"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUrlChange?.(inputUrl);
+              }}
+              className="shrink-0 rounded-lg bg-primary px-2 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
             >
-              Zapisz
+              OK
             </button>
           </div>
         </div>
