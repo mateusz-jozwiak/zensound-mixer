@@ -1,116 +1,167 @@
-export type SoundItem = {
+import {
+  CloudRain,
+  CloudLightning,
+  TreePine,
+  Flame,
+  Waves,
+  Wind,
+  Coffee,
+  Bird,
+  Moon,
+  Droplets,
+  Train,
+  Plane,
+  Car,
+  Clock,
+  Heart,
+  Zap,
+} from "lucide-react";
+import { LucideIcon } from "lucide-react";
+
+export interface Sound {
   id: string;
   name: string;
-  url: string; // paste your audio file URL here
-};
+  icon: LucideIcon;
+  audioUrl: string;
+  category: "nature" | "urban" | "special";
+}
 
-export type SoundCategory = {
-  id: string;
-  name: string;
-  items: SoundItem[];
-};
+/**
+ * ============================================
+ * LISTA DŹWIĘKÓW AMBIENT
+ * ============================================
+ * 
+ * Aby dodać nowy dźwięk:
+ * 1. Zaimportuj odpowiednią ikonę z lucide-react na górze pliku
+ *    Pełna lista ikon: https://lucide.dev/icons
+ * 2. Dodaj nowy obiekt do odpowiedniej sekcji (nature/urban/special)
+ * 
+ * Przykład dodania nowego dźwięku:
+ * {
+ *   id: "unique-id",        // unikalny identyfikator
+ *   name: "Nazwa",          // nazwa wyświetlana w UI
+ *   icon: IconName,         // ikona z lucide-react
+ *   audioUrl: "https://...", // URL do pliku MP3
+ *   category: "nature",     // kategoria: "nature" | "urban" | "special"
+ * },
+ */
 
-export const SOUNDS: SoundCategory[] = [
+export const sounds: Sound[] = [
+  // ==================== DŹWIĘKI NATURY ====================
   {
-    id: "nature-rivers",
-    name: "Rivers & Water",
-    items: [
-      { id: "river", name: "River", url: "" },
-      { id: "waves", name: "Waves", url: "" },
-      { id: "campfire", name: "Campfire", url: "" },
-    ],
+    id: "rain",
+    name: "Deszcz",
+    icon: CloudRain,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/212/212-preview.mp3",
+    category: "nature",
+  },
+  {
+    id: "storm",
+    name: "Burza",
+    icon: CloudLightning,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/1166/1166-preview.mp3",
+    category: "nature",
+  },
+  {
+    id: "forest",
+    name: "Las",
+    icon: TreePine,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/1210/1210-preview.mp3",
+    category: "nature",
+  },
+  {
+    id: "fire",
+    name: "Kominek",
+    icon: Flame,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2577/2577-preview.mp3",
+    category: "nature",
+  },
+  {
+    id: "waves",
+    name: "Fale oceanu",
+    icon: Waves,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/1189/1189-preview.mp3",
+    category: "nature",
   },
   {
     id: "wind",
-    name: "Wind",
-    items: [
-      { id: "wind", name: "Wind", url: "" },
-      { id: "howling-wind", name: "Howling Wind", url: "" },
-      { id: "wind-in-trees", name: "Wind in Trees", url: "" },
-    ],
+    name: "Wiatr",
+    icon: Wind,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2461/2461-preview.mp3",
+    category: "nature",
   },
   {
-    id: "rain",
-    name: "Rain",
-    items: [
-      { id: "rain", name: "Rain", url: "" },
-      { id: "light-rain", name: "Light Rain", url: "" },
-      { id: "heavy-rain", name: "Heavy Rain", url: "" },
-      { id: "thunder", name: "Thunder", url: "" },
-      { id: "rain-on-window", name: "Rain on Window", url: "" },
-      { id: "rain-on-car-roof", name: "Rain on Car Roof", url: "" },
-      { id: "rain-on-umbrella", name: "Rain on Umbrella", url: "" },
-    ],
+    id: "birds",
+    name: "Ptaki",
+    icon: Bird,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2432/2432-preview.mp3",
+    category: "nature",
   },
   {
-    id: "animals",
-    name: "Animals",
-    items: [
-      { id: "birds", name: "Birds", url: "" },
-      { id: "seagulls", name: "Seagulls", url: "" },
-      { id: "crickets", name: "Crickets", url: "" },
-      { id: "wolf", name: "Wolf", url: "" },
-      { id: "owl", name: "Owl", url: "" },
-      { id: "frog", name: "Frog", url: "" },
-    ],
+    id: "night",
+    name: "Noc",
+    icon: Moon,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2515/2515-preview.mp3",
+    category: "nature",
   },
   {
-    id: "urban",
-    name: "Urban",
-    items: [
-      { id: "highway", name: "Highway", url: "" },
-      { id: "road", name: "Road", url: "" },
-      { id: "ambulance-siren", name: "Ambulance Siren", url: "" },
-      { id: "busy-street", name: "Busy Street", url: "" },
-      { id: "crowd", name: "Crowd", url: "" },
-      { id: "traffic", name: "Traffic", url: "" },
-    ],
+    id: "water",
+    name: "Strumień",
+    icon: Droplets,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2513/2513-preview.mp3",
+    category: "nature",
+  },
+
+  // ==================== DŹWIĘKI MIEJSKIE ====================
+  {
+    id: "cafe",
+    name: "Kawiarnia",
+    icon: Coffee,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/371/371-preview.mp3",
+    category: "urban",
   },
   {
-    id: "places",
-    name: "Places",
-    items: [
-      { id: "cafe", name: "Cafe", url: "" },
-      { id: "airport", name: "Airport", url: "" },
-      { id: "church", name: "Church", url: "" },
-      { id: "temple", name: "Temple", url: "" },
-      { id: "construction", name: "Construction Site", url: "" },
-      { id: "underwater", name: "Underwater", url: "" },
-    ],
+    id: "train",
+    name: "Pociąg",
+    icon: Train,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3",
+    category: "urban",
   },
   {
-    id: "transport",
-    name: "Transport",
-    items: [
-      { id: "train", name: "Train", url: "" },
-      { id: "inside-train", name: "Inside a Train", url: "" },
-      { id: "airplane", name: "Airplane", url: "" },
-      { id: "submarine", name: "Submarine", url: "" },
-      { id: "sailboat", name: "Sailboat", url: "" },
-      { id: "rowing-boat", name: "Rowing Boat", url: "" },
-    ],
+    id: "airplane",
+    name: "Samolot",
+    icon: Plane,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2587/2587-preview.mp3",
+    category: "urban",
   },
   {
-    id: "things",
-    name: "Things",
-    items: [
-      { id: "keyboard", name: "Keyboard", url: "" },
-      { id: "typewriter", name: "Typewriter", url: "" },
-      { id: "paper", name: "Paper", url: "" },
-      { id: "clock", name: "Clock", url: "" },
-      { id: "wind-chimes", name: "Wind Chimes", url: "" },
-      { id: "singing-bowl", name: "Singing Bowl", url: "" },
-    ],
+    id: "traffic",
+    name: "Ulica",
+    icon: Car,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2580/2580-preview.mp3",
+    category: "urban",
   },
   {
-    id: "noise",
-    name: "Noise",
-    items: [
-      { id: "white-noise", name: "White Noise", url: "" },
-      { id: "pink-noise", name: "Pink Noise", url: "" },
-      { id: "brown-noise", name: "Brown Noise", url: "" },
-    ],
+    id: "clock",
+    name: "Zegar",
+    icon: Clock,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3",
+    category: "urban",
+  },
+
+  // ==================== DŹWIĘKI SPECJALNE ====================
+  {
+    id: "heartbeat",
+    name: "Bicie serca",
+    icon: Heart,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3",
+    category: "special",
+  },
+  {
+    id: "electricity",
+    name: "Prąd",
+    icon: Zap,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3",
+    category: "special",
   },
 ];
-
-export default SOUNDS;
