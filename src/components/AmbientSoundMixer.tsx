@@ -1,156 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import {
-  CloudRain,
-  CloudLightning,
-  TreePine,
-  Flame,
-  Waves,
-  Wind,
-  Coffee,
-  Bird,
-  VolumeX,
-  Volume2,
-  Moon,
-  Droplets,
-  Train,
-  Plane,
-  Car,
-  Clock,
-  Heart,
-  Zap,
-} from "lucide-react";
-import { LucideIcon } from "lucide-react";
+import { VolumeX, Volume2 } from "lucide-react";
 import SoundTile from "./SoundTile";
 import TimerSelector from "./TimerSelector";
 import BackgroundMusic from "./BackgroundMusic";
 import { cn } from "@/lib/utils";
-
-interface Sound {
-  id: string;
-  name: string;
-  icon: LucideIcon;
-  audioUrl: string;
-  category: "nature" | "urban" | "special";
-}
-
-// Audio URLs - Using Mixkit CDN
-const sounds: Sound[] = [
-  // Nature sounds
-  {
-    id: "rain",
-    name: "Deszcz",
-    icon: CloudRain,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/212/212-preview.mp3",
-    category: "nature",
-  },
-  {
-    id: "storm",
-    name: "Burza",
-    icon: CloudLightning,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/1166/1166-preview.mp3",
-    category: "nature",
-  },
-  {
-    id: "forest",
-    name: "Las",
-    icon: TreePine,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/1210/1210-preview.mp3",
-    category: "nature",
-  },
-  {
-    id: "fire",
-    name: "Kominek",
-    icon: Flame,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2577/2577-preview.mp3",
-    category: "nature",
-  },
-  {
-    id: "waves",
-    name: "Fale oceanu",
-    icon: Waves,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/1189/1189-preview.mp3",
-    category: "nature",
-  },
-  {
-    id: "wind",
-    name: "Wiatr",
-    icon: Wind,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2461/2461-preview.mp3",
-    category: "nature",
-  },
-  {
-    id: "birds",
-    name: "Ptaki",
-    icon: Bird,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2432/2432-preview.mp3",
-    category: "nature",
-  },
-  {
-    id: "night",
-    name: "Noc",
-    icon: Moon,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2515/2515-preview.mp3",
-    category: "nature",
-  },
-  {
-    id: "water",
-    name: "Strumień",
-    icon: Droplets,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2513/2513-preview.mp3",
-    category: "nature",
-  },
-  // Urban sounds
-  {
-    id: "cafe",
-    name: "Kawiarnia",
-    icon: Coffee,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/371/371-preview.mp3",
-    category: "urban",
-  },
-  {
-    id: "train",
-    name: "Pociąg",
-    icon: Train,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3",
-    category: "urban",
-  },
-  {
-    id: "airplane",
-    name: "Samolot",
-    icon: Plane,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2587/2587-preview.mp3",
-    category: "urban",
-  },
-  {
-    id: "traffic",
-    name: "Ulica",
-    icon: Car,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2580/2580-preview.mp3",
-    category: "urban",
-  },
-  {
-    id: "clock",
-    name: "Zegar",
-    icon: Clock,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3",
-    category: "urban",
-  },
-  // Special sounds
-  {
-    id: "heartbeat",
-    name: "Bicie serca",
-    icon: Heart,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3",
-    category: "special",
-  },
-  {
-    id: "electricity",
-    name: "Prąd",
-    icon: Zap,
-    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3",
-    category: "special",
-  },
-];
+import { sounds, Sound } from "@/lib/sounds";
 
 interface SoundState {
   isActive: boolean;
@@ -168,10 +22,6 @@ const AmbientSoundMixer = () => {
         {}
       )
   );
-  // allow users to paste custom URLs per sound; initialize from built-in audioUrl
-  const [customUrls, setCustomUrls] = useState<Record<string, string>>(() =>
-    sounds.reduce((acc, sound) => ({ ...acc, [sound.id]: sound.audioUrl }), {})
-  );
   const [isMuted, setIsMuted] = useState(false);
   const [selectedTimer, setSelectedTimer] = useState<number | null>(null);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
@@ -186,7 +36,7 @@ const AmbientSoundMixer = () => {
         audio.crossOrigin = "anonymous";
         audio.loop = true;
         audio.preload = "auto";
-        audio.src = customUrls[sound.id] || sound.audioUrl;
+        audio.src = sound.audioUrl;
         
         // Better error handling
         audio.onerror = () => {
@@ -204,20 +54,6 @@ const AmbientSoundMixer = () => {
       });
     };
   }, []);
-
-  // update audio src when user provides a new URL
-  const handleUrlChange = useCallback((id: string, url: string) => {
-    setCustomUrls((prev) => ({ ...prev, [id]: url }));
-    const audio = audioRefs.current[id];
-    if (audio) {
-      audio.src = url;
-      // try to reload/play if active
-      audio.load();
-      if (soundStates[id]?.isActive && !isMuted) {
-        audio.play().catch(console.error);
-      }
-    }
-  }, [soundStates, isMuted]);
 
   // Handle play/pause and volume changes
   useEffect(() => {
@@ -325,8 +161,6 @@ const AmbientSoundMixer = () => {
               volume={soundStates[sound.id]?.volume || 50}
               onToggle={() => toggleSound(sound.id)}
               onVolumeChange={(volume) => setVolume(sound.id, volume)}
-              url={customUrls[sound.id]}
-              onUrlChange={(url) => handleUrlChange(sound.id, url)}
             />
           </div>
         ))}
