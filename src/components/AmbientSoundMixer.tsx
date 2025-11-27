@@ -3,6 +3,7 @@ import { VolumeX, Volume2 } from "lucide-react";
 import SoundTile from "./SoundTile";
 import TimerSelector from "./TimerSelector";
 import BackgroundMusic from "./BackgroundMusic";
+import PresetSelector from "./PresetSelector";
 import { cn } from "@/lib/utils";
 import { sounds, Sound } from "@/lib/sounds";
 
@@ -133,6 +134,23 @@ const AmbientSoundMixer = () => {
     setIsMuted((prev) => !prev);
   }, []);
 
+  const handleLoadPreset = useCallback((presetSounds: Record<string, SoundState>) => {
+    setSoundStates((prev) => {
+      const newState = { ...prev };
+      // First deactivate all
+      Object.keys(newState).forEach((key) => {
+        newState[key] = { ...newState[key], isActive: false };
+      });
+      // Then apply preset
+      Object.entries(presetSounds).forEach(([id, settings]) => {
+        if (newState[id]) {
+          newState[id] = settings;
+        }
+      });
+      return newState;
+    });
+  }, []);
+
   const activeSoundsCount = Object.values(soundStates).filter(
     (s) => s?.isActive
   ).length;
@@ -208,6 +226,11 @@ const AmbientSoundMixer = () => {
             selectedTimer={selectedTimer}
             onSelectTimer={setSelectedTimer}
             remainingTime={remainingTime}
+          />
+
+          <PresetSelector
+            currentSounds={soundStates}
+            onLoadPreset={handleLoadPreset}
           />
 
           {activeSoundsCount > 0 && (
