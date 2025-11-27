@@ -250,6 +250,7 @@ const AmbientSoundMixer = () => {
         {renderSoundGrid(natureSounds, "Dźwięki natury")}
         {renderSoundGrid(urbanSounds, "Dźwięki miejskie")}
         {renderSoundGrid(specialSounds, "Dźwięki specjalne")}
+        {renderSoundGrid(chooj, "Dźwięki chujowe")}
 
         {/* Footer */}
         <footer className="mt-8 text-center text-muted-foreground text-sm">
