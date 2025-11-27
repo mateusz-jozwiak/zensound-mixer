@@ -164,4 +164,19 @@ export const sounds: Sound[] = [
     audioUrl: "https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3",
     category: "special",
   },
+
+  {
+    id: "heartbeat1",
+    name: "Bicie serca",
+    icon: Heart,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3",
+    category: "chooj",
+  },
+  {
+    id: "electricity1",
+    name: "Prąd",
+    icon: Zap,
+    audioUrl: "https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3",
+    category: "chooj",
+  },
 ];
