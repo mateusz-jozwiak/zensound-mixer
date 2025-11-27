@@ -158,6 +158,7 @@ const AmbientSoundMixer = () => {
   const natureSounds = sounds.filter((s) => s.category === "nature");
   const urbanSounds = sounds.filter((s) => s.category === "urban");
   const specialSounds = sounds.filter((s) => s.category === "special");
+  const choojSounds = sounds.filter((s) => s.category === "chooj");
 
   const renderSoundGrid = (soundList: Sound[], title: string) => (
     <div className="mb-10">
@@ -250,7 +251,7 @@ const AmbientSoundMixer = () => {
         {renderSoundGrid(natureSounds, "Dźwięki natury")}
         {renderSoundGrid(urbanSounds, "Dźwięki miejskie")}
         {renderSoundGrid(specialSounds, "Dźwięki specjalne")}
-        {renderSoundGrid(chooj, "Dźwięki chujowe")}
+        {renderSoundGrid(choojSounds, "Dźwięki chujowe")}
 
         {/* Footer */}
         <footer className="mt-8 text-center text-muted-foreground text-sm">
