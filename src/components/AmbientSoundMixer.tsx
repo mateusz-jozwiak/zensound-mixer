@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { VolumeX, Volume2 } from "lucide-react";
+import { VolumeX, Volume2, Search } from "lucide-react";
 import SoundTile from "./SoundTile";
 import TimerSelector from "./TimerSelector";
 import BackgroundMusic from "./BackgroundMusic";
@@ -26,6 +26,7 @@ const AmbientSoundMixer = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [selectedTimer, setSelectedTimer] = useState<number | null>(null);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   
   const audioRefs = useRef<Record<string, HTMLAudioElement>>({});
 
@@ -155,14 +156,20 @@ const AmbientSoundMixer = () => {
     (s) => s?.isActive
   ).length;
 
-  const natureSounds = sounds.filter((s) => s.category === "nature");
-  const rainSounds = sounds.filter((s) => s.category === "rain");
-  const animalSounds = sounds.filter((s) => s.category === "animals");
-  const placesSounds = sounds.filter((s) => s.category === "places");
-  const thingsSounds = sounds.filter((s) => s.category === "things");
-  const transportSounds = sounds.filter((s) => s.category === "transport");
-  const urbanSounds = sounds.filter((s) => s.category === "urban");
-  const specialSounds = sounds.filter((s) => s.category === "special");
+  const filteredSounds = searchQuery.trim()
+    ? sounds.filter((s) =>
+        s.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
+      )
+    : sounds;
+
+  const natureSounds = filteredSounds.filter((s) => s.category === "nature");
+  const rainSounds = filteredSounds.filter((s) => s.category === "rain");
+  const animalSounds = filteredSounds.filter((s) => s.category === "animals");
+  const placesSounds = filteredSounds.filter((s) => s.category === "places");
+  const thingsSounds = filteredSounds.filter((s) => s.category === "things");
+  const transportSounds = filteredSounds.filter((s) => s.category === "transport");
+  const urbanSounds = filteredSounds.filter((s) => s.category === "urban");
+  const specialSounds = filteredSounds.filter((s) => s.category === "special");
 
   const renderSoundGrid = (soundList: Sound[], title: string) => (
     <div className="mb-10">
@@ -251,15 +258,39 @@ const AmbientSoundMixer = () => {
         {/* Background Music Section */}
         <BackgroundMusic isMuted={isMuted} />
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="max-w-2xl mx-auto">
+            <div className="relative">
+              <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Szukaj dźwięku..."
+                className="w-full pl-10 pr-4 py-3 rounded-lg glass-card focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Sound Categories */}
-        {renderSoundGrid(natureSounds, "Dźwięki natury")}
-        {renderSoundGrid(rainSounds, "Deszcz i burze")}
-        {renderSoundGrid(animalSounds, "Zwierzęta")}
-        {renderSoundGrid(placesSounds, "Miejsca")}
-        {renderSoundGrid(thingsSounds, "Przedmioty")}
-        {renderSoundGrid(transportSounds, "Transport")}
-        {renderSoundGrid(urbanSounds, "Dźwięki miejskie")}
-        {renderSoundGrid(specialSounds, "Dźwięki specjalne")}
+        {filteredSounds.length === 0 ? (
+          <div className="text-center text-muted-foreground py-8">
+            Brak wyników dla „{searchQuery}”
+          </div>
+        ) : (
+          <>
+            {natureSounds.length > 0 && renderSoundGrid(natureSounds, "Dźwięki natury")}
+            {rainSounds.length > 0 && renderSoundGrid(rainSounds, "Deszcz i burze")}
+            {animalSounds.length > 0 && renderSoundGrid(animalSounds, "Zwierzęta")}
+            {placesSounds.length > 0 && renderSoundGrid(placesSounds, "Miejsca")}
+            {thingsSounds.length > 0 && renderSoundGrid(thingsSounds, "Przedmioty")}
+            {transportSounds.length > 0 && renderSoundGrid(transportSounds, "Transport")}
+            {urbanSounds.length > 0 && renderSoundGrid(urbanSounds, "Dźwięki miejskie")}
+            {specialSounds.length > 0 && renderSoundGrid(specialSounds, "Dźwięki specjalne")}
+          </>
+        )}
 
         {/* Footer */}
         <footer className="mt-8 text-center text-muted-foreground text-sm">
