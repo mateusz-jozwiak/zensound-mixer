@@ -156,9 +156,13 @@ const AmbientSoundMixer = () => {
   ).length;
 
   const natureSounds = sounds.filter((s) => s.category === "nature");
+  const rainSounds = sounds.filter((s) => s.category === "rain");
+  const animalSounds = sounds.filter((s) => s.category === "animals");
+  const placesSounds = sounds.filter((s) => s.category === "places");
+  const thingsSounds = sounds.filter((s) => s.category === "things");
+  const transportSounds = sounds.filter((s) => s.category === "transport");
   const urbanSounds = sounds.filter((s) => s.category === "urban");
   const specialSounds = sounds.filter((s) => s.category === "special");
-  const choojSounds = sounds.filter((s) => s.category === "chooj");
 
   const renderSoundGrid = (soundList: Sound[], title: string) => (
     <div className="mb-10">
@@ -249,9 +253,13 @@ const AmbientSoundMixer = () => {
 
         {/* Sound Categories */}
         {renderSoundGrid(natureSounds, "Dźwięki natury")}
+        {renderSoundGrid(rainSounds, "Deszcz i burze")}
+        {renderSoundGrid(animalSounds, "Zwierzęta")}
+        {renderSoundGrid(placesSounds, "Miejsca")}
+        {renderSoundGrid(thingsSounds, "Przedmioty")}
+        {renderSoundGrid(transportSounds, "Transport")}
         {renderSoundGrid(urbanSounds, "Dźwięki miejskie")}
         {renderSoundGrid(specialSounds, "Dźwięki specjalne")}
-        {renderSoundGrid(choojSounds, "Dźwięki chujowe")}
 
         {/* Footer */}
         <footer className="mt-8 text-center text-muted-foreground text-sm">
